@@ -1,0 +1,102 @@
+plugins {
+    id "com.android.application"
+    id "org.jetbrains.kotlin.android"
+    id "kotlin-parcelize"
+    id "org.jlleitschuh.gradle.ktlint"
+    id "kotlinx-serialization"
+    id "com.google.devtools.ksp"
+}
+
+android {
+    namespace "at.florianschuster.hydro"
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "at.florianschuster.hydro"
+        minSdk 28
+        targetSdk 34
+        versionCode 1
+        versionName "0.1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables {
+            useSupportLibrary true
+        }
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas")
+        }
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+        }
+        release {
+            debuggable false
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+    buildFeatures {
+        compose true
+        buildConfig true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion "1.5.1"
+    }
+    packagingOptions {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+        exclude("META-INF/versions/9/previous-compilation-data.bin")
+    }
+}
+
+dependencies {
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.9.0"))
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0-RC"
+
+    implementation("androidx.core:core-ktx:1.10.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.1")
+    implementation("androidx.lifecycle:lifecycle-process:2.6.1")
+    implementation("androidx.activity:activity-compose:1.7.2")
+    implementation("androidx.core:core-splashscreen:1.0.1")
+
+    implementation("androidx.browser:browser:1.6.0")
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+
+    implementation(platform("androidx.compose:compose-bom:2023.06.01"))
+    implementation("androidx.compose.animation:animation")
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-graphics")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
+
+    def room_version = "2.5.2"
+    implementation("androidx.room:room-runtime:$room_version")
+    implementation("androidx.room:room-ktx:$room_version")
+    ksp("androidx.room:room-compiler:$room_version")
+
+    implementation("dev.olshevski.navigation:reimagined:1.4.0")
+    implementation("dev.olshevski.navigation:reimagined-material3:1.4.0")
+    implementation("com.airbnb.android:lottie-compose:6.0.1")
+
+    debugImplementation("androidx.compose.ui:ui-tooling")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    implementation("androidx.work:work-runtime-ktx:2.8.1")
+    implementation("androidx.health.connect:connect-client:1.1.0-alpha03")
+
+    testImplementation("junit:junit:4.13.2")
+}
