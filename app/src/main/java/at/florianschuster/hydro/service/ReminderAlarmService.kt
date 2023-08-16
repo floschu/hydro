@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
+import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import at.florianschuster.hydro.App
 import at.florianschuster.hydro.AppAction
@@ -51,9 +52,11 @@ class ReminderAlarmService(
                     trySend(canScheduleAlarmsNow)
                 }
             }
-            context.registerReceiver(
+            ContextCompat.registerReceiver(
+                context,
                 receiver,
-                IntentFilter(AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED)
+                IntentFilter(AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED),
+                ContextCompat.RECEIVER_NOT_EXPORTED
             )
             awaitClose { context.unregisterReceiver(receiver) }
         } else {

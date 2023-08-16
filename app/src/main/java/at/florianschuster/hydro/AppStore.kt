@@ -15,6 +15,7 @@ import at.florianschuster.hydro.model.defaultSelectedCups
 import at.florianschuster.hydro.model.reachedGoal
 import at.florianschuster.hydro.model.sumOfMilliliters
 import at.florianschuster.hydro.model.times
+import at.florianschuster.hydro.service.DateChangedService
 import at.florianschuster.hydro.service.HydrationHistoryStore
 import at.florianschuster.hydro.service.LocaleChangedService
 import at.florianschuster.hydro.service.NotificationService
@@ -26,6 +27,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -76,7 +78,8 @@ class AppStore(
     private val notificationService: NotificationService,
     private val preferencesStore: PreferencesStore,
     private val reminderAlarmService: ReminderAlarmService,
-    private val scope: CoroutineScope
+    private val scope: CoroutineScope,
+    dateChangedService: DateChangedService
 ) {
     private val _state = MutableStateFlow(
         AppState(
@@ -104,35 +107,42 @@ class AppStore(
     val state: StateFlow<AppState> = _state.asStateFlow()
 
     init {
-        preferencesStore.dailyGoal.onEach { milliliters ->
-            _state.update { it.copy(dailyGoal = milliliters ?: Milliliters.DAILY_GOAL_DEFAULT) }
-        }.launchIn(scope)
-        preferencesStore.reminder.onEach { reminder ->
-            _state.update { it.copy(reminder = reminder) }
-        }.launchIn(scope)
-        preferencesStore.theme.onEach { theme ->
-            _state.update { it.copy(theme = theme) }
-        }.launchIn(scope)
-        preferencesStore.selectedCups.onEach { selectedCups ->
-            _state.update {
-                it.copy(
-                    selectedCups = selectedCups.sorted()
-                        .ifEmpty { defaultSelectedCups() }
-                )
-            }
-        }.launchIn(scope)
-        preferencesStore.liquidUnit.onEach { liquidUnit ->
-            _state.update { it.copy(liquidUnit = liquidUnit) }
-        }.launchIn(scope)
-        preferencesStore.onboardingShown.onEach { onboardingShown ->
-            _state.update { it.copy(onboardingShown = onboardingShown) }
-        }.launchIn(scope)
+        with(preferencesStore) {
+            dailyGoal.onEach { milliliters ->
+                _state.update {
+                    it.copy(dailyGoal = milliliters ?: Milliliters.DAILY_GOAL_DEFAULT)
+                }
+            }.launchIn(scope)
+            reminder.onEach { reminder ->
+                _state.update { it.copy(reminder = reminder) }
+            }.launchIn(scope)
+            theme.onEach { theme ->
+                _state.update { it.copy(theme = theme) }
+            }.launchIn(scope)
+            selectedCups.onEach { selectedCups ->
+                _state.update {
+                    it.copy(
+                        selectedCups = selectedCups.sorted()
+                            .ifEmpty { defaultSelectedCups() }
+                    )
+                }
+            }.launchIn(scope)
+            liquidUnit.onEach { liquidUnit ->
+                _state.update { it.copy(liquidUnit = liquidUnit) }
+            }.launchIn(scope)
+            onboardingShown.onEach { onboardingShown ->
+                _state.update { it.copy(onboardingShown = onboardingShown) }
+            }.launchIn(scope)
+        }
 
-        hydrationHistoryStore.day(Today).onEach { day ->
-            val todayHydration = day?.hydration?.sumOfMilliliters()
-                ?: Milliliters.ZERO
-            _state.update { it.copy(todayHydration = todayHydration) }
-        }.launchIn(scope)
+        dateChangedService.onChanged
+            .flatMapLatest { localDate -> hydrationHistoryStore.day(localDate) }
+            .onEach { day ->
+                val todayHydration = day?.hydration?.sumOfMilliliters()
+                    ?: Milliliters.ZERO
+                _state.update { it.copy(todayHydration = todayHydration) }
+            }
+            .launchIn(scope)
 
         reminderAlarmService.canScheduleAlarms.onEach { canScheduleAlarms ->
             _state.update { it.copy(canScheduleAlarms = canScheduleAlarms) }
