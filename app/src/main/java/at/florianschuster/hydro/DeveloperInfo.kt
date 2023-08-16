@@ -25,12 +25,13 @@ fun Activity.openInfoCustomTab() {
 
 fun Activity.openFeedback() {
     try {
-        startActivity(
-            Intent(Intent.ACTION_SEND).apply {
-                data = Uri.parse("mailto:$DEV_EMAIL")
-                putExtra(Intent.EXTRA_SUBJECT, "Feedback hydro app")
-            }
-        )
+        val subject = "Feedback hydro app"
+        val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
+            data = Uri.parse("mailto:$DEV_EMAIL")
+            putExtra(Intent.EXTRA_EMAIL, DEV_EMAIL)
+            putExtra(Intent.EXTRA_SUBJECT, subject)
+        }
+        startActivity(Intent.createChooser(emailIntent, subject))
     } catch (ex: ActivityNotFoundException) {
         Toast.makeText(
             this,
