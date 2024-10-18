@@ -9,7 +9,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.with
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -83,15 +83,17 @@ class MainActivity : ComponentActivity() {
                         transitionSpec = { action, _, _ ->
                             when (action) {
                                 is NavAction.Pop -> {
-                                    fadeIn() with slideOutVertically(
+                                    fadeIn() togetherWith slideOutVertically(
                                         targetOffsetY = { fullHeight -> fullHeight }
                                     ) + fadeOut()
                                 }
 
                                 is NavAction.Navigate -> {
-                                    slideInVertically(
-                                        initialOffsetY = { fullHeight -> fullHeight }
-                                    ) + fadeIn() with fadeOut()
+                                    (
+                                        slideInVertically(
+                                            initialOffsetY = { fullHeight -> fullHeight }
+                                        ) + fadeIn()
+                                        ) togetherWith fadeOut()
                                 }
 
                                 else -> error("no transition defined for $action")

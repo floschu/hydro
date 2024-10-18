@@ -142,6 +142,7 @@ class AppStore(
                 .launchIn(scope)
         }
 
+        @Suppress("OPT_IN_USAGE")
         dateChangedService.onChanged
             .flatMapLatest { localDate -> hydrationHistoryStore.day(localDate) }
             .onEach { day ->
@@ -224,7 +225,7 @@ class AppStore(
                         todayMilliliters = todayMilliliters,
                         todayProgress = _state.value.hydrationProgress,
                         selectedCups = selectedCups,
-                        liquidUnit = liquidUnit,
+                        liquidUnit = liquidUnit
                     )
                 }
             }

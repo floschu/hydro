@@ -1,0 +1,49 @@
+[versions]
+activityCompose = "1.9.3"
+browser = "1.8.0"
+composeBom = "2024.10.00"
+coreKtx = "1.13.1"
+coreSplashscreen = "1.0.1"
+datastorePreferences = "1.1.1"
+kotlin = "2.0.20"
+kotlinxDatetime = "0.4.1"
+kotlinxSerializationJson = "1.7.0"
+lifecycle = "2.8.6"
+lottieCompose = "6.0.1"
+navigationReimagined = "1.5.0"
+room = "2.6.1"
+androidGradlePlugin = "8.6.1"
+
+[libraries]
+activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
+animation = { module = "androidx.compose.animation:animation" }
+browser = { module = "androidx.browser:browser", version.ref = "browser" }
+compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
+core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
+core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
+datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
+kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "kotlin" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+lifecycle-process = { module = "androidx.lifecycle:lifecycle-process", version.ref = "lifecycle" }
+lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
+lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
+lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "lottieCompose" }
+material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
+material3 = { module = "androidx.compose.material3:material3" }
+reimagined-material3 = { module = "dev.olshevski.navigation:reimagined-material3", version.ref = "navigationReimagined" }
+reimagined = { module = "dev.olshevski.navigation:reimagined", version.ref = "navigationReimagined" }
+room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
+ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version = "2.0.0" }
+ksp = { id = "com.google.devtools.ksp", version = "2.0.21-1.0.25" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version = "11.6.1" }
