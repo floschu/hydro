@@ -17,7 +17,6 @@ import at.florianschuster.hydro.model.sumOfMilliliters
 import at.florianschuster.hydro.model.times
 import at.florianschuster.hydro.service.DateChangedService
 import at.florianschuster.hydro.service.HydrationHistoryStore
-import at.florianschuster.hydro.service.LocaleChangedService
 import at.florianschuster.hydro.service.NotificationService
 import at.florianschuster.hydro.service.PreferencesStore
 import at.florianschuster.hydro.service.ReminderAlarmService
@@ -26,6 +25,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
@@ -74,7 +74,6 @@ sealed interface AppAction {
 class AppStore(
     private val hydrationHistoryStore: HydrationHistoryStore,
     isDebug: Boolean,
-    localeChangedService: LocaleChangedService,
     private val notificationService: NotificationService,
     private val preferencesStore: PreferencesStore,
     private val reminderAlarmService: ReminderAlarmService,
@@ -82,32 +81,38 @@ class AppStore(
     dateChangedService: DateChangedService
 ) {
     private val _state = MutableStateFlow(
-        AppState(
-            isDebug = isDebug,
-            dailyGoal = runBlocking {
-                preferencesStore.dailyGoal.first() ?: Milliliters.DAILY_GOAL_DEFAULT
-            },
-            todayHydration = runBlocking {
-                hydrationHistoryStore.day(Today).first()?.hydration?.sumOfMilliliters()
-                    ?: Milliliters.ZERO
-            },
-            reminder = runBlocking { preferencesStore.reminder.first() },
-            theme = runBlocking { preferencesStore.theme.first() },
-            canScheduleAlarms = reminderAlarmService.canScheduleAlarms.value,
-            defaultCups = defaultCups(),
-            selectedCups = runBlocking {
-                preferencesStore.selectedCups.first().sorted()
-                    .ifEmpty { defaultSelectedCups() }
-            },
-            appInForeground = true,
-            liquidUnit = runBlocking { preferencesStore.liquidUnit.first() },
-            onboardingShown = runBlocking { preferencesStore.onboardingShown.first() }
-        )
+        kotlin.run {
+            val liquidUnit = runBlocking { preferencesStore.liquidUnit.first() }
+            AppState(
+                isDebug = isDebug,
+                dailyGoal = runBlocking {
+                    preferencesStore.dailyGoal.first() ?: Milliliters.DAILY_GOAL_DEFAULT
+                },
+                todayHydration = runBlocking {
+                    hydrationHistoryStore.day(Today).first()?.hydration?.sumOfMilliliters()
+                        ?: Milliliters.ZERO
+                },
+                reminder = runBlocking { preferencesStore.reminder.first() },
+                theme = runBlocking { preferencesStore.theme.first() },
+                canScheduleAlarms = reminderAlarmService.canScheduleAlarms.value,
+                liquidUnit = liquidUnit,
+                defaultCups = defaultCups(liquidUnit),
+                selectedCups = runBlocking {
+                    preferencesStore.selectedCups.first().sorted()
+                        .ifEmpty { defaultSelectedCups(liquidUnit) }
+                },
+                appInForeground = true,
+                onboardingShown = runBlocking { preferencesStore.onboardingShown.first() }
+            )
+        }
     )
     val state: StateFlow<AppState> = _state.asStateFlow()
 
     init {
         with(preferencesStore) {
+            onboardingShown.onEach { onboardingShown ->
+                _state.update { it.copy(onboardingShown = onboardingShown) }
+            }.launchIn(scope)
             dailyGoal.onEach { milliliters ->
                 _state.update {
                     it.copy(dailyGoal = milliliters ?: Milliliters.DAILY_GOAL_DEFAULT)
@@ -119,20 +124,22 @@ class AppStore(
             theme.onEach { theme ->
                 _state.update { it.copy(theme = theme) }
             }.launchIn(scope)
-            selectedCups.onEach { selectedCups ->
-                _state.update {
-                    it.copy(
-                        selectedCups = selectedCups.sorted()
-                            .ifEmpty { defaultSelectedCups() }
-                    )
+
+            combine(
+                liquidUnit,
+                selectedCups
+            ) { liquidUnit, selectedCups -> liquidUnit to selectedCups }
+                .onEach { (liquidUnit, selectedCups) ->
+                    _state.update {
+                        it.copy(
+                            liquidUnit = liquidUnit,
+                            defaultCups = defaultCups(liquidUnit),
+                            selectedCups = selectedCups.sorted()
+                                .ifEmpty { defaultSelectedCups(liquidUnit) }
+                        )
+                    }
                 }
-            }.launchIn(scope)
-            liquidUnit.onEach { liquidUnit ->
-                _state.update { it.copy(liquidUnit = liquidUnit) }
-            }.launchIn(scope)
-            onboardingShown.onEach { onboardingShown ->
-                _state.update { it.copy(onboardingShown = onboardingShown) }
-            }.launchIn(scope)
+                .launchIn(scope)
         }
 
         dateChangedService.onChanged
@@ -146,10 +153,6 @@ class AppStore(
 
         reminderAlarmService.canScheduleAlarms.onEach { canScheduleAlarms ->
             _state.update { it.copy(canScheduleAlarms = canScheduleAlarms) }
-        }.launchIn(scope)
-
-        localeChangedService.onChanged.onEach { locale ->
-            _state.update { it.copy(defaultCups = defaultCups(locale)) }
         }.launchIn(scope)
     }
 
@@ -213,14 +216,15 @@ class AppStore(
                         ?.hydration
                         ?.sumOfMilliliters()
                         ?: Milliliters.ZERO
+                    val liquidUnit = preferencesStore.liquidUnit.first()
                     val selectedCups = preferencesStore.selectedCups.first()
-                        .ifEmpty { defaultSelectedCups() }
+                        .ifEmpty { defaultSelectedCups(liquidUnit) }
                         .sorted()
                     notificationService.showHydrationReminderNotification(
                         todayMilliliters = todayMilliliters,
                         todayProgress = _state.value.hydrationProgress,
                         selectedCups = selectedCups,
-                        liquidUnit = preferencesStore.liquidUnit.first()
+                        liquidUnit = liquidUnit,
                     )
                 }
             }

@@ -1,7 +1,6 @@
 package at.florianschuster.hydro.model
 
 import kotlinx.serialization.Serializable
-import java.util.Locale
 
 @Serializable
 data class Cup(
@@ -11,17 +10,17 @@ data class Cup(
 }
 
 fun defaultCups(
-    locale: Locale = Locale.getDefault()
-): List<Cup> = defaultSelectedCups(locale) + when (locale) {
-    Locale.US,
-    Locale.UK -> listOf(
+    liquidUnit: LiquidUnit
+): List<Cup> = defaultSelectedCups(liquidUnit) + when (liquidUnit) {
+    LiquidUnit.USFluidOunce,
+    LiquidUnit.UKFluidOunce -> listOf(
         Cup(Milliliters(355)), // 12 oz
         Cup(Milliliters(591)), // 20 oz
         Cup(Milliliters(946)), // 32 oz
         Cup(Milliliters(1183)) // 40 oz
     )
 
-    else -> listOf(
+    LiquidUnit.Milliliter -> listOf(
         Cup(Milliliters(330)),
         Cup(Milliliters(500)),
         Cup(Milliliters(1_000)),
@@ -30,14 +29,14 @@ fun defaultCups(
 }.sorted()
 
 fun defaultSelectedCups(
-    locale: Locale = Locale.getDefault()
-) = when (locale) {
-    Locale.US,
-    Locale.UK -> listOf(
+    liquidUnit: LiquidUnit
+) = when (liquidUnit) {
+    LiquidUnit.USFluidOunce,
+    LiquidUnit.UKFluidOunce -> listOf(
         Cup(Milliliters(236)) // 8 oz
     )
 
-    else -> listOf(
+    LiquidUnit.Milliliter -> listOf(
         Cup(Milliliters(250))
     )
 }

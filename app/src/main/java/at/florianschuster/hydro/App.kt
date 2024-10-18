@@ -6,7 +6,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import at.florianschuster.hydro.service.AndroidDateChangedService
-import at.florianschuster.hydro.service.AndroidLocaleChangedService
 import at.florianschuster.hydro.service.Channel
 import at.florianschuster.hydro.service.HydrationHistoryStore
 import at.florianschuster.hydro.service.NotificationService
@@ -42,9 +41,6 @@ class App : Application() {
             preferencesStore = preferencesStore,
             processLifecycleOwner.lifecycleScope
         )
-        val localeChangedService = AndroidLocaleChangedService(
-            context = applicationContext
-        )
         val dateChangedService = AndroidDateChangedService(
             context = applicationContext
         )
@@ -55,7 +51,6 @@ class App : Application() {
             hydrationHistoryStore = hydrationHistoryStore,
             reminderAlarmService = reminderAlarmService,
             notificationService = notificationService,
-            localeChangedService = localeChangedService,
             dateChangedService = dateChangedService
         )
 
