@@ -36,7 +36,7 @@ fun CupCarouselSelection(
         )
         Text(
             modifier = Modifier.padding(horizontal = 24.dp),
-            text = "Cups are displayed on your Main screen and in you Reminder notification",
+            text = "Cups are displayed on your Main screen and in your Reminder notification",
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.primary
         )
