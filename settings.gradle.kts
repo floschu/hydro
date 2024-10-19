@@ -18,3 +18,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "hydro"
 include(":app")
+include(":baselineprofile")

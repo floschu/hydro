@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.ktlint)
     id("kotlin-parcelize")
+    alias(libs.plugins.baselineprofile)
 }
 
 android {
@@ -47,15 +48,15 @@ android {
 
             storePassword = localProperties.getProperty("signingStorePassword")
                 ?: System.getenv("SIGNING_STORE_PASSWORD")
-                ?: null
+                        ?: null
 
             keyAlias = localProperties.getProperty("signingKeyAlias")
                 ?: System.getenv("SIGNING_KEY_ALIAS")
-                ?: null
+                        ?: null
 
             keyPassword = localProperties.getProperty("signingKeyPassword")
                 ?: System.getenv("SIGNING_KEY_PASSWORD")
-                ?: null
+                        ?: null
         }
     }
 
@@ -130,4 +131,7 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
+
+    implementation(libs.profileinstaller)
+    baselineProfile(project(":baselineprofile"))
 }

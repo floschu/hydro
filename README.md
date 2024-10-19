@@ -19,3 +19,7 @@ simple hydration reminder app
     * `KEYSTORE_KEY_PASSWORD`: key password
     * `KEYSTORE_STORE_PASSWORD`: store password
 * Push a new commit with version tag (e.g. `v2.0.0-b36`) to `develop` branch
+
+## baseline profile
+
+Generate a new profile with `./gradlew :app:generateReleaseBaselineProfile`.
