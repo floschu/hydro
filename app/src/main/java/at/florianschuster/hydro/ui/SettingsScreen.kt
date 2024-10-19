@@ -156,12 +156,7 @@ fun SettingsScreen(
 
         SettingsSection(
             modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .apply {
-                    if (!state.isDebug) {
-                        padding(bottom = contentPadding.calculateBottomPadding())
-                    }
-                },
+                .padding(horizontal = 16.dp),
             title = "About"
         ) {
             SettingItem(
@@ -190,7 +185,6 @@ fun SettingsScreen(
 
         if (state.isDebug) {
             DebugSettingsSection(
-                modifier = Modifier.padding(bottom = contentPadding.calculateBottomPadding()),
                 todayHydration = state.todayHydration,
                 liquidUnit = state.liquidUnit,
                 onResetToday = { dispatch(AppAction.ResetToday) },
@@ -201,6 +195,8 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
         }
+
+        Spacer(modifier = Modifier.height(contentPadding.calculateBottomPadding()))
     }
 }
 
@@ -414,7 +410,7 @@ private fun NotificationPermissionSettingsAlert(onDismiss: () -> Unit) {
         text = {
             Text(
                 text = "The app is unable to show Reminders " +
-                    "without the notification permission."
+                        "without the notification permission."
             )
         },
         confirmButton = {
@@ -452,7 +448,7 @@ private fun AlarmSystemSettingsAlert(onDismiss: () -> Unit) {
         text = {
             Text(
                 text = "The app is unable to show Reminders " +
-                    "without the alarm permission."
+                        "without the alarm permission."
             )
         },
         confirmButton = {
@@ -543,7 +539,7 @@ private fun DebugSettingsSection(
         SettingItem(
             fieldName = "Reset hydration today",
             value = "This sets today's hydration from ${todayHydration.format(liquidUnit)} " +
-                "to ${Milliliters.ZERO.format(liquidUnit)}",
+                    "to ${Milliliters.ZERO.format(liquidUnit)}",
             icon = {
                 Icon(
                     imageVector = Icons.Outlined.RestartAlt,
