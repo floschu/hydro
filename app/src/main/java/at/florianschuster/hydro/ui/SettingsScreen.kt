@@ -474,7 +474,6 @@ private fun AlarmSystemSettingsAlert(onDismiss: () -> Unit) {
 }
 
 private fun Context.goToAlarmSystemSettings() {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
     startActivity(
         Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
             data = Uri.parse("package:$packageName")

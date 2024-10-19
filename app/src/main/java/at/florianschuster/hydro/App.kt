@@ -28,7 +28,7 @@ class App : Application() {
         val processLifecycleOwner = ProcessLifecycleOwner.get()
         hydrationHistoryStore = SqliteHydrationHistoryStore(
             context = applicationContext,
-            isDebug = isDebug
+            isDebug = IS_DEBUG
         )
         val preferencesStore = PreferencesStore(
             context = applicationContext
@@ -45,7 +45,7 @@ class App : Application() {
             context = applicationContext
         )
         store = AppStore(
-            isDebug = isDebug,
+            isDebug = IS_DEBUG,
             scope = processLifecycleOwner.lifecycleScope,
             preferencesStore = preferencesStore,
             hydrationHistoryStore = hydrationHistoryStore,
@@ -68,7 +68,7 @@ class App : Application() {
     }
 
     companion object {
-        private val isDebug = BuildConfig.DEBUG
+        private const val IS_DEBUG = BuildConfig.DEBUG
         lateinit var instance: App
     }
 }

@@ -41,7 +41,7 @@ class NotificationService(
         liquidUnit: LiquidUnit
     ) {
         notificationManager.notify(
-            hydrationReminderId,
+            HYDRATION_REMINDER_ID,
             Notification.Builder(
                 context,
                 Channel.Hydrate.id
@@ -102,12 +102,12 @@ class NotificationService(
     )
 
     fun cancelHydrationReminderNotification() {
-        notificationManager.cancel(hydrationReminderId)
+        notificationManager.cancel(HYDRATION_REMINDER_ID)
     }
 
     fun showDailyGoalReachedNotification() {
         notificationManager.notify(
-            goalReachedId,
+            GOAL_REACHED_ID,
             Notification.Builder(
                 context,
                 Channel.GoalReached.id
@@ -128,8 +128,8 @@ class NotificationService(
     }
 
     companion object {
-        private const val hydrationReminderId = 1357
-        private const val goalReachedId = 1358
+        private const val HYDRATION_REMINDER_ID = 1357
+        private const val GOAL_REACHED_ID = 1358
         private val NOTIFICATION_COLOR = Color(0xFF00A3F8).toArgb()
     }
 }

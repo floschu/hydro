@@ -38,30 +38,22 @@ class ReminderAlarmService(
     private val alarmManager: AlarmManager = checkNotNull(context.getSystemService())
 
     private val canScheduleAlarmsNow: Boolean
-        get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            alarmManager.canScheduleExactAlarms()
-        } else {
-            true
-        }
+        get() = alarmManager.canScheduleExactAlarms()
 
     val canScheduleAlarms: StateFlow<Boolean> = callbackFlow {
         send(canScheduleAlarmsNow)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val receiver = object : BroadcastReceiver() {
-                override fun onReceive(context: Context, intent: Intent) {
-                    trySend(canScheduleAlarmsNow)
-                }
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                trySend(canScheduleAlarmsNow)
             }
-            ContextCompat.registerReceiver(
-                context,
-                receiver,
-                IntentFilter(AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED),
-                ContextCompat.RECEIVER_NOT_EXPORTED
-            )
-            awaitClose { context.unregisterReceiver(receiver) }
-        } else {
-            awaitClose()
         }
+        ContextCompat.registerReceiver(
+            context,
+            receiver,
+            IntentFilter(AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED),
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
+        awaitClose { context.unregisterReceiver(receiver) }
     }.stateIn(scope, SharingStarted.Eagerly, canScheduleAlarmsNow)
 
     suspend fun setAlarm(reminder: Reminder) {

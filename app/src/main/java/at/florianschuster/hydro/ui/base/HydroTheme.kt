@@ -1,5 +1,3 @@
-@file:Suppress("SpellCheckingInspection", "PrivatePropertyName")
-
 package at.florianschuster.hydro.ui.base
 
 import android.app.Activity
@@ -47,7 +45,6 @@ private val md_theme_light_outline = Color(0xFF70787D)
 private val md_theme_light_inverseOnSurface = Color(0xFFE1F4FF)
 private val md_theme_light_inverseSurface = Color(0xFF003547)
 private val md_theme_light_inversePrimary = Color(0xFF65D3FF)
-private val md_theme_light_shadow = Color(0xFF000000)
 private val md_theme_light_surfaceTint = Color(0xFF006683)
 private val md_theme_light_outlineVariant = Color(0xFFC0C8CD)
 private val md_theme_light_scrim = Color(0xFF000000)
@@ -78,12 +75,9 @@ private val md_theme_dark_outline = Color(0xFF8A9297)
 private val md_theme_dark_inverseOnSurface = Color(0xFF001F2A)
 private val md_theme_dark_inverseSurface = Color(0xFFBFE9FF)
 private val md_theme_dark_inversePrimary = Color(0xFF006683)
-private val md_theme_dark_shadow = Color(0xFF000000)
 private val md_theme_dark_surfaceTint = Color(0xFF65D3FF)
 private val md_theme_dark_outlineVariant = Color(0xFF40484C)
 private val md_theme_dark_scrim = Color(0xFF000000)
-
-private val seed = Color(0xFFBBE5FA)
 
 private val LightColors = lightColorScheme(
     primary = md_theme_light_primary,
@@ -189,7 +183,7 @@ fun HydroTheme(
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+        dynamicColor -> {
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }

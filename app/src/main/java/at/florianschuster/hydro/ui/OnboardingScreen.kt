@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.NavigateNext
+import androidx.compose.material.icons.automirrored.filled.NavigateNext
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -63,7 +63,7 @@ fun OnboardingScreen(
             },
             content = {
                 Icon(
-                    Icons.Outlined.NavigateNext,
+                    Icons.AutoMirrored.Default.NavigateNext,
                     contentDescription = "go next"
                 )
             }

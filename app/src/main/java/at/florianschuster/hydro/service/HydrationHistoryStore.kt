@@ -53,7 +53,7 @@ class SqliteHydrationHistoryStore(
     private val database: DayDatabase = Room.databaseBuilder(
         context = context.applicationContext,
         klass = DayDatabase::class.java,
-        name = databaseName
+        name = DATABASE_NAME
     ).apply {
         if (isDebug) fallbackToDestructiveMigration()
     }.build()
@@ -94,7 +94,7 @@ class SqliteHydrationHistoryStore(
     }
 
     companion object {
-        private const val databaseName = "day-database"
+        private const val DATABASE_NAME = "day-database"
     }
 }
 
