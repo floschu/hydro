@@ -36,23 +36,27 @@ jobs:
           echo $ENCODED_STRING > keystore-b64.txt
           base64 -d keystore-b64.txt > app/keystore.jks
 
-      - name: "Build Release bundle"
+      - name: "Build Release"
         env:
           SIGNING_KEY_ALIAS: ${{ secrets.KEYSTORE_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.KEYSTORE_KEY_PASSWORD }}
           SIGNING_STORE_PASSWORD: ${{ secrets.KEYSTORE_STORE_PASSWORD }}
-        run: ./gradlew :app:bundleRelease
+        run: ./gradlew :app:assembleRelease :app:bundleRelease
 
-      - name: "Upload Release Build to Artifacts"
+      - name: "Upload Release Builds"
         uses: actions/upload-artifact@v4
         with:
           name: release-artifacts
           if-no-files-found: error
-          path: app/build/outputs/bundle/release/
+          path: |
+            app/build/outputs/apk/release/*.apk
+            app/build/outputs/bundle/release/*.aab
 
       - name: "Create Github Release"
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
           prerelease: true
-          files: app/build/outputs/bundle/release/app-release.aab
+          files: |
+            app/build/outputs/apk/release/*.apk
+            app/build/outputs/bundle/release/*.aab

@@ -1,66 +1,101 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+
 plugins {
-    alias libs.plugins.android.application
-    alias libs.plugins.kotlin.android
-    alias libs.plugins.kotlin.compose
-    alias libs.plugins.kotlin.serialization
-    alias libs.plugins.ksp
-    alias libs.plugins.ktlint
-    id "kotlin-parcelize"
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.ktlint)
+    id("kotlin-parcelize")
 }
 
 android {
-    namespace "at.florianschuster.hydro"
-    compileSdk 34
+    namespace = "at.florianschuster.hydro"
+    compileSdk = 34
+
     defaultConfig {
-        applicationId "at.florianschuster.hydro"
-        minSdk 30
-        targetSdk 34
-        versionCode 1
-        versionName "1.0.0"
+        applicationId = "at.florianschuster.hydro"
+        minSdk = 30
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0.0"
 
         vectorDrawables {
-            useSupportLibrary true
+            useSupportLibrary = true
         }
+
         ksp {
             arg("room.schemaLocation", "$projectDir/schemas")
         }
     }
+
     lint {
         abortOnError = true
     }
+
+    signingConfigs {
+        create("release") {
+            storeFile =
+                if (file("keystore.jks").exists()) {
+                    file("keystore.jks")
+                } else {
+                    null
+                }
+
+            val localProperties = gradleLocalProperties(rootDir, providers)
+
+            storePassword = localProperties.getProperty("signingStorePassword")
+                ?: System.getenv("SIGNING_STORE_PASSWORD")
+                        ?: null
+
+            keyAlias = localProperties.getProperty("signingKeyAlias")
+                ?: System.getenv("SIGNING_KEY_ALIAS")
+                        ?: null
+
+            keyPassword = localProperties.getProperty("signingKeyPassword")
+                ?: System.getenv("SIGNING_KEY_PASSWORD")
+                        ?: null
+        }
+    }
+
     buildTypes {
         debug {
-            debuggable = true
+            isDebuggable = true
             applicationIdSuffix = ".debug"
         }
         release {
-            debuggable = false
-            minifyEnabled = true
-            shrinkResources = true
+            isDebuggable = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
-                    getDefaultProguardFile("proguard-android-optimize.txt"),
-                    "proguard-rules.pro"
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
             )
             if (file("keystore.jks").exists()) {
                 signingConfig = signingConfigs.getByName("release")
             }
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
+
     buildFeatures {
-        buildConfig true
+        buildConfig = true
     }
+
     packagingOptions {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/versions/9/previous-compilation-data.bin"
         }
-        exclude("META-INF/versions/9/previous-compilation-data.bin")
     }
 }
 
