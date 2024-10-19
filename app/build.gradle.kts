@@ -47,15 +47,15 @@ android {
 
             storePassword = localProperties.getProperty("signingStorePassword")
                 ?: System.getenv("SIGNING_STORE_PASSWORD")
-                        ?: null
+                ?: null
 
             keyAlias = localProperties.getProperty("signingKeyAlias")
                 ?: System.getenv("SIGNING_KEY_ALIAS")
-                        ?: null
+                ?: null
 
             keyPassword = localProperties.getProperty("signingKeyPassword")
                 ?: System.getenv("SIGNING_KEY_PASSWORD")
-                        ?: null
+                ?: null
         }
     }
 
@@ -91,7 +91,7 @@ android {
         buildConfig = true
     }
 
-    packagingOptions {
+    packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
             excludes += "META-INF/versions/9/previous-compilation-data.bin"
