@@ -11,10 +11,9 @@ plugins {
 android {
     namespace "at.florianschuster.hydro"
     compileSdk 34
-
     defaultConfig {
         applicationId "at.florianschuster.hydro"
-        minSdk 28
+        minSdk 30
         targetSdk 34
         versionCode 1
         versionName "1.0.0"
@@ -26,26 +25,35 @@ android {
             arg("room.schemaLocation", "$projectDir/schemas")
         }
     }
-
+    lint {
+        abortOnError = true
+    }
     buildTypes {
         debug {
-            debuggable true
+            debuggable = true
+            applicationIdSuffix = ".debug"
         }
         release {
-            debuggable false
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+            debuggable = false
+            minifyEnabled = true
+            shrinkResources = true
+            proguardFiles(
+                    getDefaultProguardFile("proguard-android-optimize.txt"),
+                    "proguard-rules.pro"
+            )
+            if (file("keystore.jks").exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = JavaVersion.VERSION_17.toString()
     }
     buildFeatures {
-        compose true
         buildConfig true
     }
     packagingOptions {
