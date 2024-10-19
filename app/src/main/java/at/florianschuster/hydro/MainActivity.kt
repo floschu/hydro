@@ -10,12 +10,16 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import at.florianschuster.hydro.model.Theme
@@ -57,19 +61,20 @@ class MainActivity : ComponentActivity() {
                     state = state,
                     dispatch = store::dispatch,
                     onShowDeveloperInfo = { openInfoCustomTab() },
-                    onWriteDeveloper = { openFeedback() },
+                    onWriteDeveloper = { openFeedback() }
                 )
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AppScreen(
     state: AppState,
     dispatch: (AppAction) -> Unit,
     onShowDeveloperInfo: () -> Unit,
-    onWriteDeveloper: () -> Unit,
+    onWriteDeveloper: () -> Unit
 ) {
     Surface(
         modifier = Modifier.fillMaxSize()
@@ -103,17 +108,19 @@ private fun AppScreen(
 
                     is NavAction.Navigate -> {
                         (
-                                slideInVertically(
-                                    initialOffsetY = { fullHeight -> fullHeight }
-                                ) + fadeIn()
-                                ) togetherWith fadeOut()
+                            slideInVertically(
+                                initialOffsetY = { fullHeight -> fullHeight }
+                            ) + fadeIn()
+                            ) togetherWith fadeOut()
                     }
 
                     else -> error("no transition defined for $action")
                 }
             }
         ) { screen ->
+            val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
             Scaffold(
+                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                 topBar = {
                     when (screen) {
                         is Screen.Onboarding -> {
@@ -131,7 +138,8 @@ private fun AppScreen(
                         )
 
                         is Screen.Settings -> SettingsToolbar(
-                            onGoBack = navController::pop
+                            onGoBack = navController::pop,
+                            scrollBehavior = scrollBehavior
                         )
 
                         is Screen.History -> HistoryScreenToolbar(
