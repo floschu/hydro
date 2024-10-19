@@ -77,7 +77,7 @@ fun TimePickerDialog(
                     ) { Text("Cancel") }
                     TextButton(
                         onClick = { onConfirm(state.hour, state.minute) }
-                    ) { Text("OK") }
+                    ) { Text("Save") }
                 }
             }
         }

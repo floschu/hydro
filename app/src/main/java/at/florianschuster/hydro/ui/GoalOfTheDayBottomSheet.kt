@@ -1,13 +1,23 @@
 package at.florianschuster.hydro.ui
 
+import android.graphics.Paint.Align
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.WaterDrop
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import at.florianschuster.hydro.AppAction
 import at.florianschuster.hydro.AppState
 import at.florianschuster.hydro.model.Milliliters
@@ -24,17 +34,23 @@ fun GoalOfTheDayBottomSheet(
     BottomSheet(
         title = "Goal of the Day"
     ) {
-        MillilitersSlider(
-            range = remember { Milliliters.DAILY_GOAL_MIN..Milliliters.DAILY_GOAL_MAX },
-            stepsSize = remember { Milliliters.DAILY_GOAL_STEPS },
-            milliliters = state.dailyGoal,
-            onMillilitersChanged = { dispatch(AppAction.SetDailyGoal(it)) }
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = Icons.Outlined.WaterDrop,
+                contentDescription = null
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            MillilitersSlider(
+                range = remember { Milliliters.DAILY_GOAL_MIN..Milliliters.DAILY_GOAL_MAX },
+                stepsSize = remember { Milliliters.DAILY_GOAL_STEPS },
+                milliliters = state.dailyGoal,
+                onMillilitersChanged = { dispatch(AppAction.SetDailyGoal(it)) }
+            )
+        }
         Text(text = state.dailyGoal.format(state.liquidUnit))
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MillilitersSlider(
     range: ClosedRange<Milliliters>,
