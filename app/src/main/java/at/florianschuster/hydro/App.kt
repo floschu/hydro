@@ -68,7 +68,8 @@ class App : Application() {
     }
 
     companion object {
-        private const val IS_DEBUG = BuildConfig.DEBUG
+        @Suppress("MayBeConstant")
+        private val IS_DEBUG = BuildConfig.DEBUG
         lateinit var instance: App
     }
 }
