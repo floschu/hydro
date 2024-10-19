@@ -12,6 +12,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,160 +45,171 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         WindowCompat.setDecorFitsSystemWindows(window, false)
-
         val store = App.instance.store
-
         setContent {
             val state by store.state.collectAsStateWithLifecycle()
-
             HydroTheme(
                 darkTheme = state.theme.isDarkTheme(),
                 dynamicColor = state.theme == Theme.Dynamic
             ) {
-                Surface(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    HydrationBackground(
-                        isSystemInDarkTheme = state.theme.isDarkTheme(),
-                        hydrationProgress = state.hydrationProgress
-                    )
+                AppScreen(
+                    state = state,
+                    dispatch = store::dispatch,
+                    onShowDeveloperInfo = { openInfoCustomTab() },
+                    onWriteDeveloper = { openFeedback() },
+                )
+            }
+        }
+    }
+}
 
-                    val navController = rememberNavController(
-                        startDestination = if (state.onboardingShown) {
-                            Screen.Today
-                        } else {
-                            Screen.Onboarding
-                        }
-                    )
-                    val sheetController = rememberNavController<Sheet>(
-                        initialBackstack = emptyList()
-                    )
+@Composable
+private fun AppScreen(
+    state: AppState,
+    dispatch: (AppAction) -> Unit,
+    onShowDeveloperInfo: () -> Unit,
+    onWriteDeveloper: () -> Unit,
+) {
+    Surface(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        HydrationBackground(
+            isSystemInDarkTheme = state.theme.isDarkTheme(),
+            hydrationProgress = state.hydrationProgress
+        )
 
-                    NavBackHandler(navController)
-                    AnimatedNavHost(
-                        controller = navController,
-                        transitionSpec = { action, _, _ ->
-                            when (action) {
-                                is NavAction.Pop -> {
-                                    fadeIn() togetherWith slideOutVertically(
-                                        targetOffsetY = { fullHeight -> fullHeight }
-                                    ) + fadeOut()
-                                }
+        val navController = rememberNavController(
+            startDestination = if (state.onboardingShown) {
+                Screen.Today
+            } else {
+                Screen.Onboarding
+            }
+        )
+        val sheetController = rememberNavController<Sheet>(
+            initialBackstack = emptyList()
+        )
 
-                                is NavAction.Navigate -> {
-                                    (
-                                        slideInVertically(
-                                            initialOffsetY = { fullHeight -> fullHeight }
-                                        ) + fadeIn()
-                                        ) togetherWith fadeOut()
-                                }
-
-                                else -> error("no transition defined for $action")
-                            }
-                        }
-                    ) { screen ->
-                        Scaffold(
-                            topBar = {
-                                when (screen) {
-                                    is Screen.Onboarding -> {
-                                        // no toolbar
-                                    }
-
-                                    is Screen.Today -> TodayToolbar(
-                                        isDebug = state.isDebug,
-                                        onGoToSettings = {
-                                            navController.navigate(Screen.Settings)
-                                        },
-                                        onGoToHistory = {
-                                            navController.navigate(Screen.History)
-                                        }
-                                    )
-
-                                    is Screen.Settings -> SettingsToolbar(
-                                        onGoBack = navController::pop
-                                    )
-
-                                    is Screen.History -> HistoryScreenToolbar(
-                                        onGoBack = navController::pop
-                                    )
-                                }
-                            },
-                            containerColor = Color.Transparent
-                        ) { contentPadding ->
-                            when (screen) {
-                                is Screen.Onboarding -> OnboardingScreen(
-                                    contentPadding = contentPadding,
-                                    dispatch = store::dispatch,
-                                    onOnboardingFinished = {
-                                        navController.navigate(
-                                            listOf(Screen.Today, Screen.Settings)
-                                        )
-                                    }
-                                )
-
-                                is Screen.Today -> TodayScreen(
-                                    contentPadding = contentPadding,
-                                    state = state,
-                                    dispatch = store::dispatch
-                                )
-
-                                is Screen.Settings -> SettingsScreen(
-                                    contentPadding = contentPadding,
-                                    state = state,
-                                    dispatch = store::dispatch,
-                                    onSetGoalOfTheDay = { sheetController.navigate(Sheet.GoalOfTheDay) },
-                                    onSetLiquidUnit = { sheetController.navigate(Sheet.LiquidUnit) },
-                                    onSetTheme = { sheetController.navigate(Sheet.SetTheme) },
-                                    onShowDeveloperInfo = { openInfoCustomTab() },
-                                    onWriteDeveloper = { openFeedback() },
-                                    onSetInterval = { sheetController.navigate(Sheet.SetInterval) }
-                                )
-
-                                is Screen.History -> HistoryScreen(
-                                    contentPadding = contentPadding,
-                                    appState = state
-                                )
-                            }
-                        }
+        NavBackHandler(navController)
+        AnimatedNavHost(
+            controller = navController,
+            transitionSpec = { action, _, _ ->
+                when (action) {
+                    is NavAction.Pop -> {
+                        fadeIn() togetherWith slideOutVertically(
+                            targetOffsetY = { fullHeight -> fullHeight }
+                        ) + fadeOut()
                     }
 
-                    BackHandler(
-                        enabled = sheetController.backstack.entries.isNotEmpty(),
-                        onBack = sheetController::pop
-                    )
-                    BottomSheetNavHost(
-                        controller = sheetController,
-                        onDismissRequest = sheetController::pop,
-                        scrimColor = Color.Black.copy(alpha = 0.75f)
-                    ) { sheet ->
-                        when (sheet) {
-                            is Sheet.GoalOfTheDay -> GoalOfTheDayBottomSheet(
-                                state = state,
-                                dispatch = store::dispatch
-                            )
-
-                            is Sheet.SetTheme -> ThemeBottomSheet(
-                                state = state,
-                                dispatch = store::dispatch,
-                                onClose = sheetController::pop
-                            )
-
-                            is Sheet.SetInterval -> SetIntervalBottomSheet(
-                                state = state,
-                                dispatch = store::dispatch,
-                                onClose = sheetController::pop
-                            )
-
-                            is Sheet.LiquidUnit -> SetLiquidUnitBottomSheet(
-                                state = state,
-                                dispatch = store::dispatch,
-                                onClose = sheetController::pop
-                            )
-                        }
+                    is NavAction.Navigate -> {
+                        (
+                                slideInVertically(
+                                    initialOffsetY = { fullHeight -> fullHeight }
+                                ) + fadeIn()
+                                ) togetherWith fadeOut()
                     }
+
+                    else -> error("no transition defined for $action")
                 }
+            }
+        ) { screen ->
+            Scaffold(
+                topBar = {
+                    when (screen) {
+                        is Screen.Onboarding -> {
+                            // no toolbar
+                        }
+
+                        is Screen.Today -> TodayToolbar(
+                            isDebug = state.isDebug,
+                            onGoToSettings = {
+                                navController.navigate(Screen.Settings)
+                            },
+                            onGoToHistory = {
+                                navController.navigate(Screen.History)
+                            }
+                        )
+
+                        is Screen.Settings -> SettingsToolbar(
+                            onGoBack = navController::pop
+                        )
+
+                        is Screen.History -> HistoryScreenToolbar(
+                            onGoBack = navController::pop
+                        )
+                    }
+                },
+                containerColor = Color.Transparent
+            ) { contentPadding ->
+                when (screen) {
+                    is Screen.Onboarding -> OnboardingScreen(
+                        contentPadding = contentPadding,
+                        dispatch = dispatch,
+                        onOnboardingFinished = {
+                            navController.navigate(
+                                listOf(Screen.Today, Screen.Settings)
+                            )
+                        }
+                    )
+
+                    is Screen.Today -> TodayScreen(
+                        contentPadding = contentPadding,
+                        state = state,
+                        dispatch = dispatch
+                    )
+
+                    is Screen.Settings -> SettingsScreen(
+                        contentPadding = contentPadding,
+                        state = state,
+                        dispatch = dispatch,
+                        onSetGoalOfTheDay = { sheetController.navigate(Sheet.GoalOfTheDay) },
+                        onSetLiquidUnit = { sheetController.navigate(Sheet.LiquidUnit) },
+                        onSetTheme = { sheetController.navigate(Sheet.SetTheme) },
+                        onShowDeveloperInfo = onShowDeveloperInfo,
+                        onWriteDeveloper = onWriteDeveloper,
+                        onSetInterval = { sheetController.navigate(Sheet.SetInterval) }
+                    )
+
+                    is Screen.History -> HistoryScreen(
+                        contentPadding = contentPadding,
+                        appState = state
+                    )
+                }
+            }
+        }
+
+        BackHandler(
+            enabled = sheetController.backstack.entries.isNotEmpty(),
+            onBack = sheetController::pop
+        )
+        BottomSheetNavHost(
+            controller = sheetController,
+            onDismissRequest = sheetController::pop,
+            scrimColor = Color.Black.copy(alpha = 0.75f)
+        ) { sheet ->
+            when (sheet) {
+                is Sheet.GoalOfTheDay -> GoalOfTheDayBottomSheet(
+                    state = state,
+                    dispatch = dispatch
+                )
+
+                is Sheet.SetTheme -> ThemeBottomSheet(
+                    state = state,
+                    dispatch = dispatch,
+                    onClose = sheetController::pop
+                )
+
+                is Sheet.SetInterval -> SetIntervalBottomSheet(
+                    state = state,
+                    dispatch = dispatch,
+                    onClose = sheetController::pop
+                )
+
+                is Sheet.LiquidUnit -> SetLiquidUnitBottomSheet(
+                    state = state,
+                    dispatch = dispatch,
+                    onClose = sheetController::pop
+                )
             }
         }
     }
